@@ -1,10 +1,11 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard, ShoppingCart, FileText, Package, Users, Building2,
   TrendingUp, TrendingDown, Calculator, Wallet, UserCheck, Repeat2,
   Landmark, BookOpen, ClipboardList, Settings, LogOut, Bell,
-  ChevronDown, Menu, X, Sun, Moon, Shield, BookMarked, Palette, Percent, Scroll,
+  ChevronDown, ChevronRight, Menu, X, Sun, Moon, Shield, BookMarked, Palette, Percent, Scroll,
+  Sliders, Boxes, Tags, Warehouse, Factory,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import Footer from '../ui/Footer';
@@ -24,45 +25,59 @@ interface NavSection {
 
 const tenantNav: NavSection[] = [
   {
-    title: 'Main',
+    title: 'DASHBOARD',
     items: [{ to: '/', icon: LayoutDashboard, label: 'Dashboard' }],
   },
   {
-    title: 'Masters',
+    title: 'MASTERS',
     items: [
-      { to: '/vendors',   icon: Building2, label: 'Vendors'   },
-      { to: '/customers', icon: Users,     label: 'Customers' },
-      { to: '/materials', icon: Package,   label: 'Materials' },
+      { to: '/masters/business-configuration', icon: Sliders,     label: 'Business Config' },
+      { to: '/masters/items',                  icon: Boxes,       label: 'Item Master'     },
+      { to: '/masters/categories',             icon: Tags,        label: 'Item Categories' },
+      { to: '/masters/warehouses',             icon: Warehouse,   label: 'Warehouses'      },
+      { to: '/vendors',                        icon: Building2,   label: 'Vendors'         },
+      { to: '/customers',                      icon: Users,       label: 'Customers'       },
+      { to: '/materials',                      icon: Package,     label: 'Materials'       },
     ],
   },
   {
-    title: 'Transactions',
+    title: 'SALES',
     items: [
-      { to: '/purchases', icon: ShoppingCart, label: 'Purchases' },
-      { to: '/sales',     icon: FileText,     label: 'Sales'     },
-      { to: '/quotation', icon: Scroll,       label: 'Quotation' },
+      { to: '/sales',       icon: FileText,   label: 'Sales'       },
+      { to: '/quotation',   icon: Scroll,     label: 'Quotation'   },
+      { to: '/receivables', icon: TrendingUp, label: 'Receivables' },
     ],
   },
   {
-    title: 'Reports',
+    title: 'PROCUREMENT',
     items: [
-      { to: '/reports/profit',        icon: TrendingUp,  label: 'Profit & Loss' },
-      { to: '/inventory',             icon: Package,     label: 'Inventory'     },
-      { to: '/receivables',           icon: TrendingUp,  label: 'Receivables'   },
-      { to: '/payables',              icon: TrendingDown, label: 'Payables'     },
-      { to: '/reports/day-book',      icon: BookOpen,    label: 'Day Book'      },
-      { to: '/reports/party-ledger',  icon: BookMarked,  label: 'Party Ledger'  },
+      { to: '/procurement/requisitions', icon: FileText,     label: 'Requisitions'  },
+      { to: '/procurement/quotations',   icon: Scroll,       label: 'Quotations'    },
+      { to: '/procurement/orders',       icon: ShoppingCart, label: 'Purchase Orders' },
+      { to: '/procurement/receipts',     icon: Package,      label: 'Goods Receipts' },
+      { to: '/purchases',                icon: ShoppingCart, label: 'Purchases'     },
+      { to: '/payables',                 icon: TrendingDown, label: 'Payables'      },
     ],
   },
   {
-    title: 'GST',
+    title: 'INVENTORY',
     items: [
-      { to: '/gst',          icon: Calculator, label: 'GST'          },
-      { to: '/gst-payments', icon: Wallet,     label: 'GST Payments' },
+      { to: '/inventory', icon: Package, label: 'Inventory' },
+      { to: '/inventory/stock-transfer', icon: Repeat2, label: 'Stock Transfer' },
+      { to: '/inventory/stock-adjustment', icon: Settings, label: 'Stock Adjustment' },
     ],
   },
   {
-    title: 'Finance',
+    title: 'MANUFACTURING',
+    items: [
+      { to: '/manufacturing/boms',              icon: Factory, label: 'Bill of Materials' },
+      { to: '/manufacturing/routings',          icon: Factory, label: 'Routings'          },
+      { to: '/manufacturing/work-centers',      icon: Factory, label: 'Work Centers'      },
+      { to: '/manufacturing/production-orders', icon: Factory, label: 'Production Orders' },
+    ],
+  },
+  {
+    title: 'FINANCE & ACCOUNTING',
     items: [
       { to: '/expenses',        icon: Wallet,    label: 'Expenses'        },
       { to: '/investors',       icon: UserCheck, label: 'Investors'       },
@@ -71,16 +86,27 @@ const tenantNav: NavSection[] = [
     ],
   },
   {
-    title: 'Tools',
+    title: 'GST & COMPLIANCE',
     items: [
-      { to: '/calculate-sale-price', icon: Percent, label: 'Calculate Sale Price' },
+      { to: '/gst',          icon: Calculator, label: 'GST'          },
+      { to: '/gst-payments', icon: Wallet,     label: 'GST Payments' },
     ],
   },
   {
-    title: 'System',
+    title: 'REPORTS',
     items: [
-      { to: '/company-profile',  icon: Settings, label: 'Company Profile'     },
-      { to: '/invoice-settings', icon: Palette,  label: 'Invoice Formatting'  },
+      { to: '/reports/profit',       icon: TrendingUp,    label: 'Profit & Loss' },
+      { to: '/reports/day-book',     icon: BookOpen,      label: 'Day Book'      },
+      { to: '/reports/party-ledger', icon: BookMarked,    label: 'Party Ledger'  },
+      { to: '/audit-logs',           icon: ClipboardList, label: 'Audit Logs'    },
+    ],
+  },
+  {
+    title: 'ADMINISTRATION',
+    items: [
+      { to: '/company-profile',      icon: Settings, label: 'Company Profile'     },
+      { to: '/invoice-settings',     icon: Palette,  label: 'Invoice Formatting'  },
+      { to: '/calculate-sale-price', icon: Percent,  label: 'Calculate Sale Price' },
     ],
   },
 ];
@@ -104,6 +130,7 @@ export default function AppLayout({ isAdmin = false }: AppLayoutProps) {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dark, setDark] = useState(() => localStorage.getItem('inventra-dark') === 'true');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const location = useLocation();
 
@@ -113,15 +140,14 @@ export default function AppLayout({ isAdmin = false }: AppLayoutProps) {
   }, [dark]);
 
   useEffect(() => {
-  const el = document.getElementById('page-scroll-container');
-
-  if (el) {
-    el.scrollTo({
-      top: 0,
-      behavior: 'instant' as ScrollBehavior,
-    });
-  }
-}, [location.pathname]);
+    const el = document.getElementById('page-scroll-container');
+    if (el) {
+      el.scrollTo({
+        top: 0,
+        behavior: 'instant' as ScrollBehavior,
+      });
+    }
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     try { await authApi.logout(); } catch {}
@@ -130,7 +156,21 @@ export default function AppLayout({ isAdmin = false }: AppLayoutProps) {
     toast.success('Logged out successfully.');
   };
 
-  const navSections = isAdmin ? adminNav : tenantNav;
+  const navSections = useMemo(() => {
+    if (isAdmin) return adminNav;
+    const bType = user?.businessType || localStorage.getItem('inventra-business-type') || 'BOTH';
+    if (bType === 'TRADING') {
+      return tenantNav.filter((section) => section.title !== 'MANUFACTURING');
+    }
+    return tenantNav;
+  }, [isAdmin, user?.businessType]);
+  
+  const toggleSection = (title: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [title]: prev[title] === undefined ? false : !prev[title]
+    }));
+  };
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
@@ -185,32 +225,43 @@ export default function AppLayout({ isAdmin = false }: AppLayoutProps) {
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto py-2 scrollbar-thin">
-          {navSections.map((section) => (
-            <div key={section.title} className="mb-1">
-              <div className="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                {section.title}
-              </div>
-              {section.items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.to === '/' || item.to === '/admin'}
-                  onClick={() => setSidebarOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-2 text-sm font-medium transition-colors
-                     border-l-2 mx-1 rounded-r-lg
-                     ${isActive
-                       ? 'bg-brand-900/40 text-brand-400 border-brand-500'
-                       : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border-transparent'
-                     }`
-                  }
+          {navSections.map((section) => {
+            const isExpanded = expandedSections[section.title] !== false;
+            return (
+              <div key={section.title} className="mb-1">
+                <button
+                  onClick={() => toggleSection(section.title)}
+                  className="w-full flex items-center justify-between px-4 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider hover:text-gray-300 transition-colors"
                 >
-                  <item.icon size={15} className="flex-shrink-0" />
-                  {item.label}
-                </NavLink>
-              ))}
-            </div>
-          ))}
+                  <span>{section.title}</span>
+                  {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </button>
+                {isExpanded && (
+                  <div className="mt-1">
+                    {section.items.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        end={item.to === '/' || item.to === '/admin'}
+                        onClick={() => setSidebarOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center gap-3 px-4 py-2 text-sm font-medium transition-colors
+                           border-l-2 mx-1 rounded-r-lg
+                           ${isActive
+                             ? 'bg-brand-900/40 text-brand-400 border-brand-500'
+                             : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800 border-transparent'
+                           }`
+                        }
+                      >
+                        <item.icon size={15} className="flex-shrink-0" />
+                        {item.label}
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         {/* User footer */}
@@ -225,13 +276,13 @@ export default function AppLayout({ isAdmin = false }: AppLayoutProps) {
             </div>
           </div>
           <button
-  onClick={handleLogout}
-  className="w-full flex items-center gap-2 text-xs text-gray-400 hover:text-red-400
-             transition-colors py-1.5 px-1 rounded-md hover:bg-gray-800"
->
-  <LogOut size={13} className="flex-shrink-0" />
-  Sign Out
-</button>
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 text-xs text-gray-400 hover:text-red-400
+                       transition-colors py-1.5 px-1 rounded-md hover:bg-gray-800"
+          >
+            <LogOut size={13} className="flex-shrink-0" />
+            Sign Out
+          </button>
 
           <div className="pt-1 border-t border-gray-800/60">
             <p className="text-[10px] text-gray-600 leading-relaxed">
@@ -297,9 +348,9 @@ export default function AppLayout({ isAdmin = false }: AppLayoutProps) {
 
         {/* Page content */}
         <main
-  id="page-scroll-container"
-  className="flex-1 overflow-y-auto p-4 md:p-6 pb-2 print-scroll-fix"
->
+          id="page-scroll-container"
+          className="flex-1 overflow-y-auto p-4 md:p-6 pb-2 print-scroll-fix"
+        >
           <Outlet />
         </main>
         <Footer />

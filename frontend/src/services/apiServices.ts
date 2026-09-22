@@ -174,3 +174,64 @@ export const notificationApi = {
   markRead: (id: number) => api.put(`/notifications/${id}/read`).then((r) => r.data),
   markAllRead: () => api.put('/notifications/read-all').then((r) => r.data),
 };
+
+// ── Masters (Phase 5.1) ──────────────────────────────────────
+export {
+  businessConfigApi,
+  categoryApi,
+  warehouseApi,
+  itemMasterApi,
+} from './masterServices';
+export type {
+  BusinessConfig,
+  ItemCategory,
+  Warehouse,
+  ItemMasterItem,
+} from './masterServices';
+
+// ── Procurement (Phase 5.2) ──────────────────────────────────
+export {
+  purchaseRequisitionApi,
+  purchaseQuotationApi,
+  purchaseOrderApi,
+  goodsReceiptApi,
+  purchaseInvoiceApi,
+} from './procurementServices';
+
+// ── Manufacturing (Phase 5.3) ────────────────────────────────
+export {
+  billOfMaterialApi,
+  routingApi,
+  workCenterApi,
+  productionOrderApi,
+  manufacturingPlanningApi,
+  productionExecutionApi,
+} from './manufacturingServices';
+
+// ── Inventory (Phase 6.10B) ──────────────────────────────────
+export const stockTransferApi = {
+  list: (params?: any) => api.get('/inventory/stock-transfers', { params }).then((r) => r.data),
+  get: (id: number) => api.get(`/inventory/stock-transfers/${id}`).then((r) => r.data),
+  create: (data: any) => api.post('/inventory/stock-transfers', data).then((r) => r.data),
+  update: (id: number, data: any) => api.put(`/inventory/stock-transfers/${id}`, data).then((r) => r.data),
+  delete: (id: number) => api.delete(`/inventory/stock-transfers/${id}`).then((r) => r.data),
+};
+
+export const stockAdjustmentApi = {
+  list: (params?: any) => api.get('/inventory/stock-adjustments', { params }).then((r) => r.data),
+  get: (id: number) => api.get(`/inventory/stock-adjustments/${id}`).then((r) => r.data),
+  create: (data: any) => api.post('/inventory/stock-adjustments', data).then((r) => r.data),
+  update: (id: number, data: any) => api.put(`/inventory/stock-adjustments/${id}`, data).then((r) => r.data),
+  delete: (id: number) => api.delete(`/inventory/stock-adjustments/${id}`).then((r) => r.data),
+};
+
+// ── Accounting (Phase 6.10B) ──────────────────────────────────
+export const chartOfAccountsApi = {
+  list: (params?: any) => api.get('/accounting/accounts', { params }).then((r) => r.data),
+  create: (data: any) => api.post('/accounting/accounts', data).then((r) => r.data),
+};
+
+export const journalEntryApi = {
+  list: (params?: any) => api.get('/accounting/journal-entries', { params }).then((r) => r.data),
+  create: (data: any) => api.post('/accounting/journal-entries', data).then((r) => r.data),
+};

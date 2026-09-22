@@ -44,6 +44,8 @@ import SalesPage from './pages/sales/SalesPage';
 import QuotationPage from './pages/quotation/QuotationPage';
 import ExpensesPage from './pages/expenses/ExpensesPage';
 import InventoryPage from './pages/inventory/InventoryPage';
+import StockTransferPage from './pages/inventory/StockTransferPage';
+import StockAdjustmentPage from './pages/inventory/StockAdjustmentPage';
 import ReceivablesPage from './pages/receivables/ReceivablesPage';
 import PayablesPage from './pages/payables/PayablesPage';
 import InvestorsPage from './pages/investors/InvestorsPage';
@@ -60,6 +62,23 @@ import CalculateSalePricePage from './pages/tools/CalculateSalePricePage';
 // Admin pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminUsersPage from './pages/admin/AdminUsersPage';
+
+// Masters pages (Phase 5.1)
+import BusinessConfigurationPage from './pages/masters/BusinessConfigurationPage';
+import ItemMasterPage from './pages/masters/ItemMasterPage';
+import WarehouseMasterPage from './pages/masters/WarehouseMasterPage';
+import ItemCategoriesPage from './pages/masters/ItemCategoriesPage';
+
+// Procurement pages (Phase 5.2)
+import PurchaseRequisitionPage from './pages/procurement/PurchaseRequisitionPage';
+import PurchaseQuotationPage from './pages/procurement/PurchaseQuotationPage';
+import PurchaseOrderPage from './pages/procurement/PurchaseOrderPage';
+import GoodsReceiptPage from './pages/procurement/GoodsReceiptPage';
+
+import BOMPage from './pages/manufacturing/BOMPage';
+import RoutingPage from './pages/manufacturing/RoutingPage';
+import WorkCenterPage from './pages/manufacturing/WorkCenterPage';
+import ProductionOrderPage from './pages/manufacturing/ProductionOrderPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isHydrated, user } = useAuthStore();
@@ -143,6 +162,31 @@ export default function App() {
             {/* Tenant routes */}
             <Route path="/" element={<TenantRoute><AppLayout /></TenantRoute>}>
               <Route index element={<DashboardPage />} />
+
+              {/* Masters (Phase 5.1) */}
+              <Route path="masters/business-configuration" element={<BusinessConfigurationPage />} />
+              <Route path="masters/items"                  element={<ItemMasterPage />} />
+              <Route path="masters/warehouses"             element={<WarehouseMasterPage />} />
+              <Route path="masters/categories"             element={<ItemCategoriesPage />} />
+
+              {/* Route Aliases */}
+              <Route path="business-configuration" element={<Navigate to="/masters/business-configuration" replace />} />
+              <Route path="items"                  element={<Navigate to="/masters/items" replace />} />
+              <Route path="warehouses"             element={<Navigate to="/masters/warehouses" replace />} />
+              <Route path="categories"             element={<Navigate to="/masters/categories" replace />} />
+
+              {/* Procurement (Phase 5.2) */}
+              <Route path="procurement/requisitions" element={<PurchaseRequisitionPage />} />
+              <Route path="procurement/quotations"   element={<PurchaseQuotationPage />} />
+              <Route path="procurement/orders"       element={<PurchaseOrderPage />} />
+              <Route path="procurement/receipts"     element={<GoodsReceiptPage />} />
+
+              {/* Manufacturing */}
+              <Route path="manufacturing/boms"              element={<BOMPage />} />
+              <Route path="manufacturing/routings"          element={<RoutingPage />} />
+              <Route path="manufacturing/work-centers"      element={<WorkCenterPage />} />
+              <Route path="manufacturing/production-orders" element={<ProductionOrderPage />} />
+
               <Route path="vendors"               element={<VendorsPage />} />
               <Route path="customers"             element={<CustomersPage />} />
               <Route path="materials"             element={<MaterialsPage />} />
@@ -151,6 +195,8 @@ export default function App() {
               <Route path="quotation"             element={<QuotationPage />} />
               <Route path="expenses"              element={<ExpensesPage />} />
               <Route path="inventory"             element={<InventoryPage />} />
+              <Route path="inventory/stock-transfer" element={<StockTransferPage />} />
+              <Route path="inventory/stock-adjustment" element={<StockAdjustmentPage />} />
               <Route path="receivables"           element={<ReceivablesPage />} />
               <Route path="payables"              element={<PayablesPage />} />
               <Route path="investors"             element={<InvestorsPage />} />

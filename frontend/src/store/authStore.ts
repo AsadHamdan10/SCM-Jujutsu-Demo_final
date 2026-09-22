@@ -25,6 +25,8 @@ export interface User {
 
   profileComplete?: boolean;
 
+  businessType?: 'TRADING' | 'MANUFACTURING' | 'BOTH' | string;
+
   role: 'super_admin' | 'admin' | 'staff';
 
   status:
@@ -46,13 +48,13 @@ export interface User {
 // app's first /auth/me call resolves are kept here.
 type PersistedUser = Pick<
   User,
-  'id' | 'companyName' | 'username' | 'email' | 'role' | 'status' | 'forcePasswordChange' | 'profileComplete'
+  'id' | 'companyName' | 'username' | 'email' | 'role' | 'status' | 'forcePasswordChange' | 'profileComplete' | 'businessType'
 >;
 
 function toPersistedUser(user: User | null): PersistedUser | null {
   if (!user) return null;
-  const { id, companyName, username, email, role, status, forcePasswordChange, profileComplete } = user;
-  return { id, companyName, username, email, role, status, forcePasswordChange, profileComplete };
+  const { id, companyName, username, email, role, status, forcePasswordChange, profileComplete, businessType } = user;
+  return { id, companyName, username, email, role, status, forcePasswordChange, profileComplete, businessType };
 }
 
 interface AuthState {

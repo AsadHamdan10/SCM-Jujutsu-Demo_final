@@ -121,6 +121,7 @@ export default defineConfig({
 
       workbox: {
         cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 5000000,
 
         // clientsClaim + skipWaiting are what make the *waiting* SW
         // ready to take over instantly when our dialog calls

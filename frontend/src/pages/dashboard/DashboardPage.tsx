@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { TrendingUp, ShoppingCart, FileText, Wallet, AlertCircle, Package, PlusCircle, Receipt, CreditCard, BarChart3} from 'lucide-react';
+import { TrendingUp, TrendingDown, ShoppingCart, FileText, Wallet, AlertCircle, Package, PlusCircle, Receipt, CreditCard, BarChart3} from 'lucide-react';
 import { dashboardApi } from '../../services/apiServices';
 import { StatCard, Spinner, inr } from '../../components/ui';
 import {
@@ -9,17 +9,20 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
 
 const COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4'];
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const { data, isLoading } = useQuery({ queryKey: ['dashboard'], queryFn: dashboardApi.get });
   
   if (isLoading) return <Spinner />;
   if (!data) return null;
 
   const { summary, charts, recentSales, recentPurchases } = data;
+  const bType = user?.businessType || localStorage.getItem('inventra-business-type') || 'BOTH';
 
   return (
     <div className="space-y-5">
@@ -28,18 +31,45 @@ export default function DashboardPage() {
         <p className="text-sm text-gray-500 mt-0.5">Year-to-date business overview</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="YTD Sales" value={inr(summary.ytd.sales.total)} icon={TrendingUp} color="green" sub={`${summary.ytd.sales.count} invoices`} />
-        <StatCard label="YTD Purchases" value={inr(summary.ytd.purchases.total)} icon={ShoppingCart} color="blue" sub={`${summary.ytd.purchases.count} bills`} />
-        <StatCard label="Gross Profit" value={inr(summary.ytd.sales.profit)} icon={TrendingUp} color="indigo" />
-        <StatCard label="YTD Expenses" value={inr(summary.ytd.expenses)} icon={Wallet} color="red" />
+      <div className="space-y-6">
+        {/* Common KPIs */}
+        <div>
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Common KPIs</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <StatCard label="Sales" value={inr(summary.ytd.sales.total)} icon={TrendingUp} color="green" />
+            <StatCard label="Purchases" value={inr(summary.ytd.purchases.total)} icon={ShoppingCart} color="blue" />
+            <StatCard label="Receivables" value={inr(summary.outstanding.receivables)} icon={AlertCircle} color="amber" />
+            <StatCard label="Payables" value={inr(summary.outstanding.payables)} icon={AlertCircle} color="red" />
+            <StatCard label="Inventory Value" value={inr(0)} icon={Package} color="purple" />
+          </div>
+        </div>
+
+        {/* Trading KPIs */}
+        {(bType === 'TRADING' || bType === 'BOTH') && (
+          <div>
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Trading KPIs</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <StatCard label="Quotations" value="0" icon={FileText} color="indigo" />
+              <StatCard label="Pending Sales" value="0" icon={AlertCircle} color="amber" />
+              <StatCard label="Sales Returns" value="0" icon={TrendingDown} color="red" />
+            </div>
+          </div>
+        )}
+
+        {/* Manufacturing KPIs */}
+        {(bType === 'MANUFACTURING' || bType === 'BOTH') && (
+          <div>
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Manufacturing KPIs</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <StatCard label="Production Orders" value="0" icon={Package} color="blue" />
+              <StatCard label="Planned Production" value="0" icon={FileText} color="indigo" />
+              <StatCard label="Material Shortages" value="0" icon={AlertCircle} color="red" />
+              <StatCard label="WIP" value={inr(0)} icon={TrendingUp} color="amber" />
+            </div>
+          </div>
+        )}
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard label="Month Sales" value={inr(summary.mtd.sales.total)} icon={FileText} color="green" />
-        <StatCard label="Month Purchases" value={inr(summary.mtd.purchases.total)} icon={ShoppingCart} color="blue" />
-        <StatCard label="Receivables" value={inr(summary.outstanding.receivables)} icon={AlertCircle} color="amber" />
-        <StatCard label="Payables" value={inr(summary.outstanding.payables)} icon={AlertCircle} color="red" />
-      </div>
+
      {/* Mobile & Tablet Quick Links */}
 <div className="lg:hidden card p-5">
   <h3 className="font-semibold text-sm mb-4 text-gray-700 dark:text-gray-300">
